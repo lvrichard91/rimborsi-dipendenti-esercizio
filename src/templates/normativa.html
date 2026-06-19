@@ -2,33 +2,42 @@
 {% block titolo %}Normativa vigente{% endblock %}
 {% block contenuto %}
 <h1>Normativa vigente</h1>
-<p class="nota">Parametri applicati dal sistema. Fonte: {{ rules.RIFERIMENTO_NORMATIVO }}.</p>
+<p class="nota">Parametri applicati dal sistema in base alla data di sostenimento della spesa.
+Fonti: {{ rules.PARAMETRI["2024"].riferimento }} (fino al 31/12/2025);
+{{ rules.PARAMETRI["2026"].riferimento }} (dal 01/01/2026).</p>
 
+{% set prev = rules.PARAMETRI["2024"] %}
+{% set vig = rules.PARAMETRI["2026"] %}
 <table class="tabella">
   <thead>
     <tr>
       <th>Categoria</th>
-      <th class="num">Massimale di esenzione</th>
+      <th class="num">Fino al 31/12/2025</th>
+      <th class="num">Dal 01/01/2026</th>
     </tr>
   </thead>
   <tbody>
-    {% for codice, massimale in rules.MASSIMALI_GIORNALIERI.items() %}
+    {% for codice in rules.CATEGORIE_A_GIORNATE %}
     <tr>
       <td>{{ rules.CATEGORIE[codice] }}</td>
-      <td class="num">{{ "%.2f"|format(massimale) }} € / giorno</td>
+      <td class="num">{{ "%.2f"|format(prev[codice]) }} € / giorno</td>
+      <td class="num">{{ "%.2f"|format(vig[codice]) }} € / giorno</td>
     </tr>
     {% endfor %}
     <tr>
       <td>{{ rules.CATEGORIE["chilometrico"] }}</td>
-      <td class="num">{{ "%.2f"|format(rules.MASSIMALE_KM) }} € / km</td>
+      <td class="num">{{ "%.2f"|format(prev.km) }} € / km</td>
+      <td class="num">{{ "%.2f"|format(vig.km) }} € / km</td>
     </tr>
     <tr>
       <td>{{ rules.CATEGORIE["alloggio"] }}</td>
-      <td class="num">{{ "%.2f"|format(rules.MASSIMALE_NOTTE) }} € / notte</td>
+      <td class="num">{{ "%.2f"|format(prev.notte) }} € / notte</td>
+      <td class="num">{{ "%.2f"|format(vig.notte) }} € / notte</td>
     </tr>
     <tr class="riga-evidenziata">
       <td><strong>Plafond mensile complessivo per dipendente</strong></td>
-      <td class="num"><strong>{{ "%.2f"|format(rules.PLAFOND_MENSILE) }} € / mese</strong></td>
+      <td class="num"><strong>{{ "%.2f"|format(prev.plafond) }} € / mese</strong></td>
+      <td class="num"><strong>{{ "%.2f"|format(vig.plafond) }} € / mese</strong></td>
     </tr>
   </tbody>
 </table>

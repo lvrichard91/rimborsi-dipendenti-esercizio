@@ -4,14 +4,18 @@ from src import rules
 
 
 def massimale_teorico(richiesta):
-    """Massimale di esenzione applicabile alla richiesta, in base alla categoria."""
+    """Massimale di esenzione applicabile alla richiesta, in base alla categoria.
+
+    I massimali sono quelli vigenti alla data di sostenimento della spesa.
+    """
+    p = rules.parametri(richiesta["data"])
     categoria = richiesta["categoria"]
     if categoria in rules.CATEGORIE_A_GIORNATE:
-        return round(rules.MASSIMALI_GIORNALIERI[categoria] * richiesta["giorni"], 2)
+        return round(p[categoria] * richiesta["giorni"], 2)
     if categoria == "chilometrico":
-        return round(rules.MASSIMALE_KM * richiesta["km"], 2)
+        return round(p["km"] * richiesta["km"], 2)
     if categoria == "alloggio":
-        return round(rules.MASSIMALE_NOTTE * richiesta["notti"], 2)
+        return round(p["notte"] * richiesta["notti"], 2)
     raise ValueError(f"categoria non gestita: {categoria}")
 
 
@@ -24,7 +28,8 @@ def calcola(richiesta, esente_gia_riconosciuta):
     importo = richiesta["importo"]
     teorico = massimale_teorico(richiesta)
     esente_teorica = min(importo, teorico)
-    capienza = max(rules.PLAFOND_MENSILE - esente_gia_riconosciuta, 0.0)
+    plafond = rules.parametri(richiesta["data"])["plafond"]
+    capienza = max(plafond - esente_gia_riconosciuta, 0.0)
     esente = round(min(esente_teorica, capienza), 2)
     imponibile = round(importo - esente, 2)
     dettaglio = {

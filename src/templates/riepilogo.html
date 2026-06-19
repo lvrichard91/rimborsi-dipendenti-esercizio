@@ -2,7 +2,8 @@
 {% block titolo %}Riepilogo mensile{% endblock %}
 {% block contenuto %}
 <h1>Riepilogo mensile per dipendente</h1>
-<p class="nota">Plafond mensile di esenzione: {{ "%.2f"|format(plafond) }} € per dipendente.</p>
+<p class="nota">Il plafond mensile di esenzione dipende dal mese di sostenimento
+(1.200,00 € fino a dicembre 2025; 1.400,00 € da gennaio 2026).</p>
 
 <table class="tabella">
   <thead>
@@ -12,6 +13,7 @@
       <th class="num">Richieste valide</th>
       <th class="num">Totale esente</th>
       <th class="num">Totale imponibile</th>
+      <th class="num">Plafond</th>
       <th>Utilizzo plafond</th>
     </tr>
   </thead>
@@ -23,6 +25,7 @@
       <td class="num">{{ riga.richieste }}</td>
       <td class="num">{{ "%.2f"|format(riga.esente) }} €</td>
       <td class="num">{{ "%.2f"|format(riga.imponibile) }} €</td>
+      <td class="num">{{ "%.2f"|format(riga.plafond) }} €</td>
       <td>
         <div class="barra-plafond">
           <div class="barra-plafond-riempimento {% if riga.percentuale_plafond >= 100 %}piena{% endif %}"
@@ -32,7 +35,7 @@
       </td>
     </tr>
     {% else %}
-    <tr><td colspan="6">Nessuna richiesta registrata.</td></tr>
+    <tr><td colspan="7">Nessuna richiesta registrata.</td></tr>
     {% endfor %}
   </tbody>
 </table>

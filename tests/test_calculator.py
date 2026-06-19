@@ -70,3 +70,57 @@ class TestCalcola:
             "esente_teorica": 154.94,
             "capienza_plafond": 100.0,
         }
+
+
+# Circolare 18/2026: massimali e plafond vigenti per le spese dal 01/01/2026.
+def richiesta_2026(**campi):
+    campi.setdefault("data", "2026-03-09")
+    return richiesta(**campi)
+
+
+class TestMassimaleTeorico2026:
+    def test_trasferta_italia(self):
+        r = richiesta_2026(categoria="trasferta_italia", giorni=4)
+        assert calculator.massimale_teorico(r) == 200.0
+
+    def test_trasferta_estero(self):
+        r = richiesta_2026(categoria="trasferta_estero", giorni=3)
+        assert calculator.massimale_teorico(r) == 255.0
+
+    def test_pasto(self):
+        r = richiesta_2026(categoria="pasto", giorni=5)
+        assert calculator.massimale_teorico(r) == 50.0
+
+    def test_chilometrico(self):
+        r = richiesta_2026(categoria="chilometrico", km=250)
+        assert calculator.massimale_teorico(r) == 112.5
+
+    def test_alloggio(self):
+        r = richiesta_2026(categoria="alloggio", notti=2)
+        assert calculator.massimale_teorico(r) == 340.0
+
+
+class TestPlafond2026:
+    def test_plafond_incapiente_caso_6_1(self):
+        # Caso 6.1 della circolare: capienza residua 1400 - 1350 = 50.
+        r = richiesta_2026(categoria="pasto", giorni=5, importo=50.0)
+        esente, imponibile, _ = calculator.calcola(r, esente_gia_riconosciuta=1350.0)
+        assert esente == 50.0
+        assert imponibile == 0.0
+
+    def test_plafond_incapiente_caso_6_1_variante(self):
+        # Variante del Caso 6.1: capienza residua 1400 - 1380 = 20.
+        r = richiesta_2026(categoria="pasto", giorni=5, importo=50.0)
+        esente, imponibile, _ = calculator.calcola(r, esente_gia_riconosciuta=1380.0)
+        assert esente == 20.0
+        assert imponibile == 30.0
+
+
+class TestRegimePerData:
+    def test_confine_2025_usa_massimali_previgenti(self):
+        r = richiesta(categoria="pasto", giorni=5, data="2025-12-31")
+        assert calculator.massimale_teorico(r) == 40.0  # 8,00 × 5
+
+    def test_confine_2026_usa_nuovi_massimali(self):
+        r = richiesta(categoria="pasto", giorni=5, data="2026-01-01")
+        assert calculator.massimale_teorico(r) == 50.0  # 10,00 × 5
